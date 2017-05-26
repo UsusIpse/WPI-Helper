@@ -50,4 +50,6 @@ function WPIH_init($file) {
 
     // Register the Plugin Deactivation Hook
     register_deactivation_hook($file, array(&$aPlugin, 'deactivate'));
+	
+    register_uninstall_hook($file, array(&$aPlugin, 'uninstall'));
 }

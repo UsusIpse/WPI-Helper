@@ -80,7 +80,11 @@ class WPIH_Plugin extends WPIH_LifeCycle {
     }
 
     public function addActionsAndFilters() {
-
+		
+		//Check to see if WP-Invoice is installed
+		add_action('admin_init', array($this, 'WPIH_PreAction') );
+		add_action('init', array($this, 'WPIH_Action') );
+		
         // Add options administration page
         // http://plugin.michael-simpson.com/?page_id=47
         add_action('admin_menu', array(&$this, 'addSettingsSubMenuPage'));
@@ -112,6 +116,73 @@ class WPIH_Plugin extends WPIH_LifeCycle {
         // http://plugin.michael-simpson.com/?page_id=41
 
     }
+	function wpih_display_user_selection( $file_path, $screen, $path ) {
+		global $wpdb;
+		$new_file_path = dirname(__FILE__) . '/ui/wp-invoice_page_wpi_page_manage_invoice.php';
+		$ucan = current_user_can('activate_plugins');
+		
 
+
+		if ( $screen != 'wp-invoice_page_wpi_page_manage_invoice' ) {
+			return $file_path;
+		}
+		if ( empty( $_REQUEST[ 'wpi' ] ) && $ucan) {
+			return $path . '/user_selection_form.php';
+		}
+		if( empty( $_REQUEST[ 'wpi' ] ) && !$ucan){
+			wp_redirect( get_site_url() . '/');
+		}
+		if ( \UsabilityDynamics\Utility::is_older_wp_version( '3.4' ) ) {
+			return $path = $path . '/wp-invoice_page_wpi_page_manage_invoice_legacy.php';
+		}
+
+		return $new_file_path;
+	}
+	function WPIH_Action() {
+		global $wpi_settings, $WPI_UI;
+		  if ( class_exists('WPI_Core') ) {
+			
+			//add_filter('wpi_invoice_pre_save', array($this, 'wpih_pre_save'), 10, 2 );
+			
+			remove_filter( 'wpi_page_loader_path', array( 'WPI_UI', "wpi_display_user_selection" ), 0, 3 );
+			add_filter( 'wpi_page_loader_path', array( $this, "wpih_display_user_selection" ), 1, 3 );
+			
+		
+			wp_enqueue_script('wpi-gateways');
+			//require_once(__DIR__ . '/lib/wpih_class_invoice.php');
+			//require_once(__DIR__ . '/lib/wpih_class_list_table.php');
+			
+			//add_action('wpi_invoice_saved', array($this, 'wpih_new_invoice_notification'), 10, 2);
+			
+
+			
+		  } else {
+			add_action('admin_notices', array($this, 'wpih_not_loaded'));
+		  }
+	}
+	function WPIH_PreAction() {
+		global $wpi_settings, $WPI_UI;
+		
+		if ( class_exists('WPI_Core') ) {
+			
+		}else {
+			add_action('admin_notices', array($this, 'wpih_not_loaded'));
+		}
+		
+	}
+	function wpih_loaded() {
+		
+		printf(
+		  '<div class="error"><p>%s</p></div>',
+		  __('WPIH main Loaded')
+		);
+		
+	}
+	function wpih_not_loaded() {
+		printf(
+		  '<div class="error"><p>%s</p></div>',
+		  __('Sorry WPI_UI is not loaded. Please activate WP-Invoice')
+		);
+	}
 
 }
