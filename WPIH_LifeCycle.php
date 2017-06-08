@@ -142,7 +142,7 @@ class WPIH_LifeCycle extends WPIH_InstallIndicator {
     protected function addSettingsSubMenuPageToPluginsMenu() {
         $this->requireExtraPluginFiles();
         $displayName = $this->getPluginDisplayName();
-        add_submenu_page('plugins.php',
+        add_submenu_page('wpi_main',
                          $displayName,
                          $displayName,
                          'manage_options',

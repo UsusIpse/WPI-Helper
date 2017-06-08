@@ -4,7 +4,7 @@
 
 ?>
 
-<div class="wrap">rawr
+<div class="wrap">
   <h2>&nbsp;</h2>
   <div class="postbox" id="wp_new_invoice_div">
     <div class="inside">

@@ -265,7 +265,7 @@ class WPIH_OptionsManager {
         if (!current_user_can('manage_options')) {
             wp_die(__('You do not have sufficient permissions to access this page.', 'wpih'));
         }
-
+		wp_enqueue_script('wpih-ajax-script');
         $optionMetaData = $this->getOptionMetaData();
 
         // Save Posted Options
@@ -280,7 +280,9 @@ class WPIH_OptionsManager {
         // HTML for the page
         $settingsGroup = get_class($this) . '-settings-group';
         ?>
+		
         <div class="wrap">
+
             <h2><?php _e('System Settings', 'wpih'); ?></h2>
             <table cellspacing="1" cellpadding="2"><tbody>
             <tr><td><?php _e('System', 'wpih'); ?></td><td><?php echo php_uname(); ?></td></tr>
@@ -324,16 +326,34 @@ class WPIH_OptionsManager {
                 <table class="plugin-options-table"><tbody>
                 <?php
                 if ($optionMetaData != null) {
+					
                     foreach ($optionMetaData as $aOptionKey => $aOptionMeta) {
-                        $displayText = is_array($aOptionMeta) ? $aOptionMeta[0] : $aOptionMeta;
-                        ?>
-                            <tr valign="top">
-                                <th scope="row"><p><label for="<?php echo $aOptionKey ?>"><?php echo $displayText ?></label></p></th>
-                                <td>
-                                <?php $this->createFormControl($aOptionKey, $aOptionMeta, $this->getOption($aOptionKey)); ?>
-                                </td>
-                            </tr>
-                        <?php
+						echo $this->getOption( $aOptionKey );
+						echo wp_get_attachment_url( $this->getOption( $aOptionKey ) );
+						if($aOptionKey == 'media_selector_attachment_id' ){
+							?>
+								
+									<div class='image-preview-wrapper'>
+										<img id='image-preview' src='<?php echo wp_get_attachment_url( $this->getOption( $aOptionKey ) ); ?>' height='100'>
+									</div>
+									<input id="upload_image_button" type="button" class="button" value="<?php _e( 'Upload image' ); ?>" />
+									<input type='text' name='<?php echo $aOptionKey ?>' id='<?php echo $aOptionKey ?>' value='<?php echo $this->getOption( $aOptionKey ); ?>'>
+									
+								
+							<?php 
+						}
+						else{
+							$displayText = is_array($aOptionMeta) ? $aOptionMeta[0] : $aOptionMeta;
+							?>
+								<tr valign="top">
+									<th scope="row"><p><label for="<?php echo $aOptionKey ?>"><?php echo $displayText ?></label></p></th>
+									<td>
+									<?php $this->createFormControl($aOptionKey, $aOptionMeta, $this->getOption($aOptionKey)); ?>
+									</td>
+								</tr>
+							<?php
+						}
+                        
                     }
                 }
                 ?>

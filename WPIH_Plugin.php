@@ -12,9 +12,10 @@ class WPIH_Plugin extends WPIH_LifeCycle {
     public function getOptionMetaData() {
         //  http://plugin.michael-simpson.com/?page_id=31
         return array(
-            //'_version' => array('Installed Version'), // Leave this one commented-out. Uncomment to test upgrades.
-            'ATextInput' => array(__('Enter in some text', 'my-awesome-plugin')),
+            '_version' => array('Installed Version'), 
+            'media_selector_attachment_id' => array(__('Choose your Logo', 'my-awesome-plugin')),
             'AmAwesome' => array(__('I like this awesome plugin', 'my-awesome-plugin'), 'false', 'true'),
+			'LikeCookies' => array(__('I like these cookies', 'my-awesome-plugin'), 'false', 'true'),
             'CanDoSomething' => array(__('Which user role can do something', 'my-awesome-plugin'),
                                         'Administrator', 'Editor', 'Author', 'Contributor', 'Subscriber', 'Anyone')
         );
@@ -82,12 +83,13 @@ class WPIH_Plugin extends WPIH_LifeCycle {
     public function addActionsAndFilters() {
 		
 		//Check to see if WP-Invoice is installed
-		add_action('admin_init', array($this, 'WPIH_PreAction') );
+		//add_action('admin_init', array($this, 'WPIH_PreAction') );
 		add_action('init', array($this, 'WPIH_Action') );
 		
         // Add options administration page
         // http://plugin.michael-simpson.com/?page_id=47
-        add_action('admin_menu', array(&$this, 'addSettingsSubMenuPage'));
+		// \/ moved to WPIH_action \/
+        //add_action('admin_menu', array(&$this, 'addSettingsSubMenuPage'));
 
         // Example adding a script & style just for the options administration page
         // http://plugin.michael-simpson.com/?page_id=47
@@ -143,6 +145,10 @@ class WPIH_Plugin extends WPIH_LifeCycle {
 		  if ( class_exists('WPI_Core') ) {
 			
 			//add_filter('wpi_invoice_pre_save', array($this, 'wpih_pre_save'), 10, 2 );
+			add_action('admin_menu', array(&$this, 'addSettingsSubMenuPage'));
+			add_action('admin_enqueue_scripts', array(&$this, 'register_wpih_scripts') );
+			add_action('wp_ajax_wpih_action', array(&$this, 'wpih_ajax_action'));
+
 			
 			remove_filter( 'wpi_page_loader_path', array( 'WPI_UI', "wpi_display_user_selection" ), 0, 3 );
 			add_filter( 'wpi_page_loader_path', array( $this, "wpih_display_user_selection" ), 1, 3 );
@@ -153,12 +159,33 @@ class WPIH_Plugin extends WPIH_LifeCycle {
 			//require_once(__DIR__ . '/lib/wpih_class_list_table.php');
 			
 			//add_action('wpi_invoice_saved', array($this, 'wpih_new_invoice_notification'), 10, 2);
-			
+			add_action ( 'admin_enqueue_scripts', function () {
+				if (is_admin ())
+					wp_enqueue_media ();
+			} );
 
 			
 		  } else {
 			add_action('admin_notices', array($this, 'wpih_not_loaded'));
 		  }
+	}
+
+	function wpih_ajax_action() {
+		global $wpdb;
+		$whatever = intval($_POST['whatever']);
+		$whatever += 10;
+		echo $whatever;
+		wp_die();
+	}
+	function register_wpih_scripts ($hook) {
+//		if('index.php' != $hook){
+//			return;
+//		}
+		wp_register_script( 'wpih-ajax-script', plugins_url( '/js/wpih.js', __FILE__ ), array('jquery'), null, true );
+
+		// in JavaScript, object properties are accessed as ajax_object.ajax_url, ajax_object.we_value
+		wp_localize_script( 'wpih-ajax-script', 'ajax_object',
+				array( 'ajax_url' => admin_url( 'admin-ajax.php' ), 'we_value' => 1234 ) );
 	}
 	function WPIH_PreAction() {
 		global $wpi_settings, $WPI_UI;
