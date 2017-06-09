@@ -267,6 +267,8 @@ class WPIH_OptionsManager {
         }
 		wp_enqueue_script('wpih-ajax-script');
         $optionMetaData = $this->getOptionMetaData();
+		
+		echo do_shortcode('[wpih-main-image]');
 
         // Save Posted Options
         if ($optionMetaData != null) {
@@ -328,8 +330,7 @@ class WPIH_OptionsManager {
                 if ($optionMetaData != null) {
 					
                     foreach ($optionMetaData as $aOptionKey => $aOptionMeta) {
-						echo $this->getOption( $aOptionKey );
-						echo wp_get_attachment_url( $this->getOption( $aOptionKey ) );
+						
 						if($aOptionKey == 'media_selector_attachment_id' ){
 							?>
 								

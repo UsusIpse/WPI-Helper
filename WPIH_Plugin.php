@@ -85,7 +85,9 @@ class WPIH_Plugin extends WPIH_LifeCycle {
 		//Check to see if WP-Invoice is installed
 		//add_action('admin_init', array($this, 'WPIH_PreAction') );
 		add_action('init', array($this, 'WPIH_Action') );
-		
+		include_once('WPIH_ShowImageShortCode.php');
+			$isc = new WPIH_ShowImageShortCode();
+			$isc->register('wpih-main-image');
         // Add options administration page
         // http://plugin.michael-simpson.com/?page_id=47
 		// \/ moved to WPIH_action \/
@@ -157,6 +159,7 @@ class WPIH_Plugin extends WPIH_LifeCycle {
 			wp_enqueue_script('wpi-gateways');
 			//require_once(__DIR__ . '/lib/wpih_class_invoice.php');
 			//require_once(__DIR__ . '/lib/wpih_class_list_table.php');
+			
 			
 			//add_action('wpi_invoice_saved', array($this, 'wpih_new_invoice_notification'), 10, 2);
 			add_action ( 'admin_enqueue_scripts', function () {

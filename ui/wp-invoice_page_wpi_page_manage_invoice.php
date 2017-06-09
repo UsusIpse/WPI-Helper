@@ -76,12 +76,8 @@
 
   #post-body .wp_themeSkin .mceStatusbar a.mceResize {top:0;}
 </style>
-<?php 
-print_r( wp_get_attachment_url(get_option('WPIH_Plugin_media_selector_attachment_id') ) );
-
-?>
 <div id="wpi_manage_page" class="wrap <?php echo (!empty($this_invoice->data['post_status']) ? 'wpi_invoice_status_' . $this_invoice->data['post_status'] : ''); ?>">
-
+<?php echo do_shortcode('[wpih-main-image]'); ?>
 <?php screen_icon("wpi"); ?>
 
 <h2>
